@@ -1,0 +1,4 @@
+.idea/*
+test.*
+t.*
+*__pycache__*
