@@ -61,6 +61,9 @@ class McliTerminal(object):
             )
 
     def help_menu(self):
+        """
+        help function
+        """
         print("""\n
 Available Commands:             Description:
 ------------------              ------------\n
@@ -84,7 +87,10 @@ ping                            Ping the Malcore API to see if it's online
 ver[sion]                       Show current program version
 \n""")
 
-    def do_exit(self):
+    def do_exit(self, api):
+        """
+        exit the terminal
+        """
         import time
         exit_sayings = (
             "fine we didn't wanna hangout with you anyways!!",
@@ -98,19 +104,27 @@ ver[sion]                       Show current program version
             "reversing files is easier than deciphering human behavior ...",
             "leaving the Matrix ...", "`shutdown -t now -r`", "shutting down mCLI"
         )
+        api.send_statistics(is_shutdown=True)
         saying = random.SystemRandom().choice(exit_sayings)
         print(f"[::][{time.strftime('%H:%M:%S')}] {saying}")
         self.quit_terminal = True
 
     def perform_external_command(self, command):
+        """
+        perform an externally loaded command
+        """
         import subprocess
 
         subprocess.call(command, shell=True)
 
     def terminal_main(self):
+        """
+        main terminal function
+        """
         conf_file = settings.CONFIG_FILE
         passed_config = settings.CURRENT_RUN_CONFIG
         api = mcli_api.ExtendedMalcoreApi(json.load(open(conf_file))["api_key"])
+        api.send_statistics(is_start=True)
         data = json.load(open(passed_config))
         filename = data["workingFile1"]
         if filename is not None:
@@ -149,8 +163,11 @@ ver[sion]                       Show current program version
                         log.info("checking if API is online")
                         settings.check_api(speak=True, ping_test=True)
                     elif choice in ("sw", "fileswap", "swap"):
-                        filename, secondary_filename = secondary_filename, filename
-                        log.info(f"filename1=@{filename}; filename2=@{secondary_filename}")
+                        if filename is not None:
+                            filename, secondary_filename = secondary_filename, filename
+                            log.info(f"filename1=@{filename}; filename2=@{secondary_filename}")
+                        else:
+                            log.warn("no working files are currently loaded, load with `newfile PATH`")
                     elif choice in ("vi", "view"):
                         conf = settings.get_conf()
                         print("Endpoint name,Monthly limit\n---------------------------")
@@ -343,7 +360,7 @@ ver[sion]                       Show current program version
                         elif choice in ("showfile",):
                             log.info(f"current working files: filename1=@{filename} filename2=@{secondary_filename}")
                         elif choice in ("quit", "exit", "ex", "qu"):
-                            self.do_exit()
+                            self.do_exit(api)
                 except KeyboardInterrupt:
                     print("^C")
                     log.warn("use the `exit` command to exit the terminal")

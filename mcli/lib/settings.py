@@ -14,13 +14,21 @@ import mcli.lib.logger as logger
 import mcli.api.mapi as mapi
 
 
+# major.minor.patch.commit
 VERSION_NUM = "0.0.0.1"
+# nickname for the version
 VERSION_NICK = "eevee"
+# actual version string
 VERSION = f"{VERSION_NUM}({VERSION_NICK})"
+# the $HOME path
 HOME = f"{os.path.expanduser('~')}/.mcli"
+# where the UUID cache is stored
 CURRENT_UUIDS = f"{HOME}/uuids.json"
+# config file
 CONFIG_FILE = f"{HOME}/mcli.json"
+# current running config
 CURRENT_RUN_CONFIG = f"{HOME}/run.conf"
+# useful links
 INSTRUCTION_LINKS = {
     "api_key_generation": "https://link.malcore.io/cli/key",
     "login_to_gui": "https://link.malcore.io/cli/login",
@@ -32,6 +40,9 @@ INSTRUCTION_LINKS = {
 
 
 def init(reload=False, skip_overview=False):
+    """
+    initialize the program
+    """
     if not reload:
         running_os = check_operating_system()
         if running_os == 'android':
@@ -98,6 +109,9 @@ def init(reload=False, skip_overview=False):
 
 
 def do_onboarding():
+    """
+    onboards the user and gets them signed in or signed up
+    """
     api = mapi.ExtendedMalcoreApi("")
     try:
         os.makedirs(HOME)
@@ -189,6 +203,9 @@ def do_onboarding():
 
 
 def check_operating_system():
+    """
+    gathers the current OS this is being run on
+    """
     _sys_platform = sys.platform
     env = os.environ
     for key in env.keys():
@@ -208,6 +225,9 @@ def check_operating_system():
 
 
 def uuid_cache(uuid, delete_uuid=False, show_all=False, search_all=False, count_all=False):
+    """
+    cache the uuid into a file so it can be used later
+    """
     if not os.path.exists(CURRENT_UUIDS):
         data = {"uuids": []}
         open(CURRENT_UUIDS, "a+").close()
@@ -253,6 +273,9 @@ def uuid_cache(uuid, delete_uuid=False, show_all=False, search_all=False, count_
 
 
 def file_type_pointer(filename):
+    """
+    pointer function for file type analysis
+    """
     import mcli.common.check_file_type as ft
 
     is_pe = ft.is_pe(filename)
@@ -262,6 +285,9 @@ def file_type_pointer(filename):
 
 
 def convert_size(byte_size):
+    """
+    converts bytes to readable size
+    """
     import math
 
     if byte_size == 0:
@@ -274,6 +300,10 @@ def convert_size(byte_size):
 
 
 def build_agent():
+    """
+    builds the User-Agent for the app based on user system info
+    :return:
+    """
     _platform = platform.uname()
     return f"mCLI/{VERSION} ({_platform.system};{_platform.version})"
 

@@ -11,6 +11,10 @@ from mcli.lib.logger import warn, error, info, fatal
 
 class ExtendedMalcoreApi(MalcoreApiSdk):
 
+    """
+    adds new functions to the API that we can use
+    """
+
     secondary_base_url = "https://api.malcore.io/auth"
     stats_url = "https://api.malcore.io/agent/stat"
 
@@ -21,6 +25,9 @@ class ExtendedMalcoreApi(MalcoreApiSdk):
         self.headers['Source'] = f'mCLI v{mcli.lib.settings.VERSION}'
 
     def register(self, email, password):
+        """
+        register the user on Malcore
+        """
         url = f"{self.secondary_base_url}/register"
         data = {"email": email, "password": password}
         try:
@@ -39,6 +46,9 @@ class ExtendedMalcoreApi(MalcoreApiSdk):
                 return False
 
     def login(self, email, password):
+        """
+        log the user into Malcore
+        """
         url = f"{self.secondary_base_url}/login"
         data = {"email": email, "password": password}
         info(f"attempting to login with username: {email} ...")
@@ -91,6 +101,9 @@ class ExtendedMalcoreApi(MalcoreApiSdk):
             return None
 
     def get_endpoint_list(self, access_token, plan_id):
+        """
+        get a list of all current available endpoints for the users plan as well as their monthly scan limit
+        """
         results = []
         url = f"https://api.malcore.io/plan/{plan_id}"
         del self.headers['apiKey']
@@ -111,13 +124,16 @@ class ExtendedMalcoreApi(MalcoreApiSdk):
         return results
 
     def send_statistics(self, is_start=False, is_usage=False, is_shutdown=False, from_function=None):
+        """
+        send statistics of use to the Malcore servers. This can be turned off
+        # TODO:/
+        """
         conf = mcli.lib.settings.get_conf()
         current_date = datetime.datetime.today()
         if "stats" in conf.keys():
             do_stats = conf["stats"]
         else:
             do_stats = False
-        do_stats = True
         if do_stats:
             del self.headers['X-No-Poll']
             if is_start:
@@ -142,10 +158,13 @@ class ExtendedMalcoreApi(MalcoreApiSdk):
                 }
             self.headers['agentVersion'] = mcli.lib.settings.VERSION
             try:
-                requests.post(self.stats_url, json=json.dumps(payload))
+                requests.post(self.stats_url, json=payload, headers=self.headers)
             except:
                 pass
 
     def code_reuse(self, filename1, filename2):
+        """
+        code reuse analysis
+        """
         url = f"{self.base_url}/reuse"
         return post_files(url, filename1=filename1, filename2=filename2, headers=self.headers)

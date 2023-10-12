@@ -141,6 +141,10 @@ class Saying(object):
 
 
 def banner_choice():
+    """
+    execute the banner randomly this way it's not always the same
+    :return:
+    """
     banner_class = Banner()
     saying_class = Saying()
     banner_method_names = [attr for attr in dir(banner_class) if inspect.ismethod(getattr(banner_class, attr))]
