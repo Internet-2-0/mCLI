@@ -21,7 +21,7 @@ class McliTerminal(object):
         "uu", "re", "reuse", "groupby",
         "ex", "exif", "key", "apikey",
         "del", "delete", "vi", "view",
-        "sw", "swap", "fileswap"
+        "sw", "swap", "fileswap", "ping"
     )
     loaded_external_commands = []
 
@@ -79,6 +79,7 @@ ex[it]|qu[it]                   Pass this to exit the terminal
 del[ete] UUID                   Manually remove a UUID from the cache list
 vi[ew]                          List your available endpoints with your plan and your scans per month
 [file]sw[ap]                    Swap working files, filename1 -> filename2; filename2 -> filename1
+ping                            Ping the Malcore API to see if it's online
 \n""")
 
     def do_exit(self):
@@ -125,6 +126,12 @@ vi[ew]                          List your available endpoints with your plan and
         group_by_int = data['groupByIntReuse']
         self.load_external()
         log.info(f"current working files: filename1=@{filename} filename2=@{secondary_filename}")
+        log.debug("checking API connection")
+        is_available = settings.check_api()
+        if is_available:
+            log.info("API is running as expected")
+        else:
+            log.warn("API is not available currently, use the `ping` command to test connection")
         log.debug("to see the help menu type `help` or `?`")
         try:
             while not self.quit_terminal:
@@ -134,6 +141,9 @@ vi[ew]                          List your available endpoints with your plan and
                         log.warn(f"unknown choice: '{choice}' passed, for help type `help`")
                     elif choice_type == "external":
                         self.perform_external_command(choice)
+                    elif choice in ("ping",):
+                        log.info("checking if API is online")
+                        settings.check_api(speak=True, ping_test=True)
                     elif choice in ("sw", "fileswap", "swap"):
                         filename, secondary_filename = secondary_filename, filename
                         log.info(f"filename1=@{filename}; filename2=@{secondary_filename}")
@@ -334,5 +344,4 @@ vi[ew]                          List your available endpoints with your plan and
                     print("^C")
                     log.warn("use the `exit` command to exit the terminal")
         except Exception:
-            import traceback
-            traceback.print_exc()
+            pass

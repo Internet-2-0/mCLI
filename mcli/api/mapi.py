@@ -1,7 +1,6 @@
 import datetime
 import json
 
-import msdk.lib.settings
 import requests
 
 import mcli.lib.settings
@@ -24,11 +23,20 @@ class ExtendedMalcoreApi(MalcoreApiSdk):
     def register(self, email, password):
         url = f"{self.secondary_base_url}/register"
         data = {"email": email, "password": password}
-        req = msdk.lib.settings.post_data(url, data, headers=self.headers, proxy=self.proxy)
-        if 'userId' in req.keys():
-            return True
-        else:
+        try:
+            req = requests.post(url, json=data, headers=self.headers)
+            results = req.json()
+        except:
+            results = None
+        if results is None:
             return False
+        if not results['success']:
+            return False
+        else:
+            if 'userId' in results['data'].keys():
+                return True
+            else:
+                return False
 
     def login(self, email, password):
         url = f"{self.secondary_base_url}/login"
@@ -132,15 +140,10 @@ class ExtendedMalcoreApi(MalcoreApiSdk):
                 payload = {
                     "type": "interaction", "payload": {"message": f"unknown interaction with mCLI at {current_date}"}
                 }
-            print(payload)
             self.headers['agentVersion'] = mcli.lib.settings.VERSION
-            print(self.headers)
             try:
-                req = requests.post(self.stats_url, json=json.dumps(payload))
-                print(req.text)
+                requests.post(self.stats_url, json=json.dumps(payload))
             except:
-                import traceback
-                traceback.print_exc()
                 pass
 
     def code_reuse(self, filename1, filename2):
