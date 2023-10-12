@@ -3,7 +3,7 @@ import random
 import shutil
 import time
 
-from mcli.lib.settings import init, CURRENT_RUN_CONFIG, integrate_external_commands, get_conf, check_api, view_basic_threat_summary, HOME
+from mcli.lib.settings import init, CURRENT_RUN_CONFIG, integrate_external_commands, get_conf, check_api, view_basic_threat_summary, HOME, version_display
 from mcli.common.banner import banner_choice
 from mcli.common.cli import Parser
 from mcli.lib.terminal_view import McliTerminal
@@ -14,6 +14,9 @@ from mcli.common.check_file_type import is_elf_file, is_windows_pe_file, is_ms_d
 
 def main():
     opts = Parser().optparse()
+    if opts.showVersion:
+        version_display()
+        exit(1)
     if opts.delAllHome:
         are_you_sure = prompt(
             f"this will remove the $HOME path ({HOME}) and force you to log back in, If you're trying to reset your "

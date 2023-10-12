@@ -67,5 +67,9 @@ class Parser(argparse.ArgumentParser):
             "--del-all", default=False, action="store_true", dest="delAllHome",
             help="Completely remove the mCLI home path"
         )
+        parser.add_argument(
+            "--version", default=False, action="store_true", dest="showVersion",
+            help="Show program version and exit"
+        )
         return parser.parse_args()
 

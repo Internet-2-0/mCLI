@@ -1,6 +1,4 @@
-# mCLI
-
-![malcore-logo-primary eda85295](https://github.com/Internet-2-0/mCLI/assets/14183473/b225875a-a499-4fa3-b257-97c6fc6324ac)
+<p align="left" width="100%"><img src=".github/images/mcli_logo.png"/></p>
 
 mCLI is a CLI tool used to analyze malware using Malcore directly from your terminal. This allows easy and quick analysis and integration.
 
@@ -15,21 +13,23 @@ That's pretty much it.
 mCLI is able to be passed flags to perform analysis as well as drop into a terminal view to begin analysis. The CLI flags are as follows:
 
 ```
-usage: test.py [-h] [--wizard] [-f1 WORKINGFILE1] [-q] [--external-path IMPORTEXTERNAL] [-f2 WORKINGFILE2] [--group-by {5,10,15}] [--reload] [--hide]
-                                                                                                                                                     
-optional arguments:                                                                                                                                  
-  -h, --help            show this help message and exit                                                                                              
-  --wizard              Drop into the mCLI terminal, this is default                                                                                 
-  -f1 WORKINGFILE1, --filename1 WORKINGFILE1                                                                                                         
-                        Set the working file filename1 to this file and continue                                                                     
-  -q, --quick-analysis  Don't drop into the terminal and perform an analysis of the passed working file and exit                                     
-  --external-path IMPORTEXTERNAL                                                                                                                     
-                        Pass external paths to load external commands into the terminal. Must use a comma between paths                              
-  -f2 WORKINGFILE2, --filename2 WORKINGFILE2                                                                                                         
-                        Set the working file filename2 to this path                                                                                  
-  --group-by {5,10,15}  Edit the group by integer for code reuse                                                                                     
-  --reload              Reload your API key                                                                                                          
-  --hide                Hide the welcome banner             
+usage: mcli [-h] [--wizard] [-f1 WORKINGFILE1] [-q] [--external-path IMPORTEXTERNAL] [-f2 WORKINGFILE2] [--group-by {5,10,15}] [--reload] [--hide] [--del-all] [--version]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --wizard              Drop into the mCLI terminal, this is default
+  -f1 WORKINGFILE1, --filename1 WORKINGFILE1
+                        Set the working file filename1 to this file and continue
+  -q, --quick-analysis  Don't drop into the terminal and perform an analysis of the passed working file and exit
+  --external-path IMPORTEXTERNAL
+                        Pass external paths to load external commands into the terminal. Must use a comma between paths
+  -f2 WORKINGFILE2, --filename2 WORKINGFILE2
+                        Set the working file filename2 to this path
+  --group-by {5,10,15}  Edit the group by integer for code reuse
+  --reload              Reload your API key
+  --hide                Hide the welcome banner
+  --del-all             Completely remove the mCLI home path
+  --version             Show program version and exit          
 ```
 
 And the terminal flags are as follows:
@@ -55,6 +55,7 @@ del[ete] UUID                   Manually remove a UUID from the cache list
 vi[ew]                          List your available endpoints with your plan and your scans per month
 [file]sw[ap]                    Swap working files, filename1 -> filename2; filename2 -> filename1
 ping                            Ping the Malcore API to see if it's online
+ver[sion]                       Show current program version
 ```
 
 This allows users to perform quick analysis on files as well as analyze multiple files at a time
@@ -63,3 +64,16 @@ This allows users to perform quick analysis on files as well as analyze multiple
 
 Upon launching mCLI the first time you will be asked if you have a Malcore account. If you have one you can login directly from the terminal and go from there, otherwise you will need to register one:
 
+![view_1](.github/images/login_view.PNG)
+
+mCLI allows you to easily view and start working on files by either passing the file via the command line flags, or using the terminal to choose your working files:
+
+![working_files](.github/images/working_files.PNG)
+
+Analyzing the files is as simple as starting the analysis and waiting for it to finish, if you just want to perform a quick analysis you can do so by passing certain command line flags:
+
+![overview-analysis](.github/images/analysis_overview.PNG)
+
+# Contribute
+
+Clone the dev branch and make your own branch, make a PR explaining what you did, why you did it, and how it will help. 

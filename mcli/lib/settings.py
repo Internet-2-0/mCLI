@@ -279,6 +279,9 @@ def build_agent():
 
 
 def get_file_basic_info(filename):
+    """
+    provides basic file information
+    """
     basename = os.path.basename(filename)
     path = os.path.dirname(filename)
     file_size = convert_size(os.path.getsize(filename))
@@ -292,6 +295,9 @@ def get_file_basic_info(filename):
 
 
 def integrate_external_commands(external_path):
+    """
+    integrate external commands for us to use in the terminal
+    """
     commands = []
     if external_path is None:
         return []
@@ -306,6 +312,9 @@ def integrate_external_commands(external_path):
 
 
 def compare_assembly_code(asm1, asm2, match_percent=None):
+    """
+    compare the assembly side by side
+    """
     parts1 = asm1.split("\n")
     parts2 = asm2.split("\n")
     rows = []
@@ -424,3 +433,9 @@ def check_api(speak=False, check_amount=5, ping_test=False):
         except:
             return False
 
+
+def version_display():
+    """
+    display the current program version
+    """
+    print(VERSION)

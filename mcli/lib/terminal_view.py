@@ -21,7 +21,8 @@ class McliTerminal(object):
         "uu", "re", "reuse", "groupby",
         "ex", "exif", "key", "apikey",
         "del", "delete", "vi", "view",
-        "sw", "swap", "fileswap", "ping"
+        "sw", "swap", "fileswap", "ping",
+        "ver", "version"
     )
     loaded_external_commands = []
 
@@ -80,6 +81,7 @@ del[ete] UUID                   Manually remove a UUID from the cache list
 vi[ew]                          List your available endpoints with your plan and your scans per month
 [file]sw[ap]                    Swap working files, filename1 -> filename2; filename2 -> filename1
 ping                            Ping the Malcore API to see if it's online
+ver[sion]                       Show current program version
 \n""")
 
     def do_exit(self):
@@ -141,6 +143,8 @@ ping                            Ping the Malcore API to see if it's online
                         log.warn(f"unknown choice: '{choice}' passed, for help type `help`")
                     elif choice_type == "external":
                         self.perform_external_command(choice)
+                    elif choice in ("ver", "version"):
+                        settings.version_display()
                     elif choice in ("ping",):
                         log.info("checking if API is online")
                         settings.check_api(speak=True, ping_test=True)
