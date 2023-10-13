@@ -2,3 +2,7 @@
 test.*
 t.*
 *__pycache__*
+build/*
+dist/*
+mcli.egg*/*
+venv-l/*

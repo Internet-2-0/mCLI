@@ -1,6 +1,8 @@
 from msdk.utils.file_utils import is_elf_file, is_document_file, is_windows_pe_file
 
 
+# these are pretty self explanatory
+
 def is_pe(filename):
     return is_windows_pe_file(filename)
 

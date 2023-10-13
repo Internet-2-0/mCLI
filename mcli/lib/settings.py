@@ -3,6 +3,7 @@ import platform
 import random
 import re
 import json
+import shutil
 import sys
 import hashlib
 import binascii
@@ -12,14 +13,15 @@ import tabulate
 import mcli.lib.logger as logger
 import mcli.api.mapi as mapi
 
-
-VERSION_NUM = "0.0.0.1"
-VERSION_NICK = "eevee"
-VERSION = f"{VERSION_NUM}({VERSION_NICK})"
+# the $HOME path
 HOME = f"{os.path.expanduser('~')}/.mcli"
+# where the UUID cache is stored
 CURRENT_UUIDS = f"{HOME}/uuids.json"
+# config file
 CONFIG_FILE = f"{HOME}/mcli.json"
+# current running config
 CURRENT_RUN_CONFIG = f"{HOME}/run.conf"
+# useful links
 INSTRUCTION_LINKS = {
     "api_key_generation": "https://link.malcore.io/cli/key",
     "login_to_gui": "https://link.malcore.io/cli/login",
@@ -31,6 +33,9 @@ INSTRUCTION_LINKS = {
 
 
 def init(reload=False, skip_overview=False):
+    """
+    initialize the program
+    """
     if not reload:
         running_os = check_operating_system()
         if running_os == 'android':
@@ -55,6 +60,8 @@ def init(reload=False, skip_overview=False):
                         logger.debug("enabling easy mode for the 'Windows guy'")
                 else:
                     logger.info(f'running OS: {running_os}')
+            elif running_os == "unknown":
+                logger.warn("your OS couldn't be determined, we'll try to run but can't promise anything")
             else:
                 logger.info(f'running OS: {running_os}')
         if not os.path.exists(HOME):
@@ -77,10 +84,11 @@ def init(reload=False, skip_overview=False):
                 logger.info("API key loaded successfully")
             except:
                 logger.fatal("unable to load API key for one or more reasons, run again with the `--reload` flag")
+                exit(1)
         return api_key
     else:
         logger.warn(
-            "reload has been initialiazed, you will not be able to login while reloading, so you need your API key. "
+            "reload has been initialized, you will not be able to login while reloading, so you need your API key. "
             f"You can find your API key here: {INSTRUCTION_LINKS['settings_page']}"
         )
         if os.path.exists(CONFIG_FILE):
@@ -94,12 +102,16 @@ def init(reload=False, skip_overview=False):
 
 
 def do_onboarding():
+    """
+    onboards the user and gets them signed in or signed up
+    """
     api = mapi.ExtendedMalcoreApi("")
     try:
         os.makedirs(HOME)
     except:
         pass
     with open(CONFIG_FILE, "a+") as fh:
+        # ignore this ...
         # api_key = logger.prompt("enter your API key (enter 'NA' if you don't have one)")
         api_key = "NA"
         if api_key == 'NA':
@@ -148,9 +160,17 @@ def do_onboarding():
                     registered = api.register(username, password)
                     if registered:
                         logger.info(
-                            "please check your email for a verification link from Malcore. "
-                            "Once you have verified your email restart mCLI to login"
+                            "registration was successful, please check your email for a verification link from "
+                            "Malcore. Once you have verified your account restart mCLI to login"
                         )
+                        try:
+                            shutil.rmtree(HOME)
+                        except:
+                            logger.warn(
+                                "we were unable to remove the current configuration, run `mcli --del-all` before "
+                                "logging in"
+                            )
+                        exit(1)
                     else:
                         logger.error(
                             f"something happened and we weren't able to register you, please register at: "
@@ -176,6 +196,9 @@ def do_onboarding():
 
 
 def check_operating_system():
+    """
+    gathers the current OS this is being run on
+    """
     _sys_platform = sys.platform
     env = os.environ
     for key in env.keys():
@@ -195,6 +218,9 @@ def check_operating_system():
 
 
 def uuid_cache(uuid, delete_uuid=False, show_all=False, search_all=False, count_all=False):
+    """
+    cache the uuid into a file so it can be used later
+    """
     if not os.path.exists(CURRENT_UUIDS):
         data = {"uuids": []}
         open(CURRENT_UUIDS, "a+").close()
@@ -240,6 +266,9 @@ def uuid_cache(uuid, delete_uuid=False, show_all=False, search_all=False, count_
 
 
 def file_type_pointer(filename):
+    """
+    pointer function for file type analysis
+    """
     import mcli.common.check_file_type as ft
 
     is_pe = ft.is_pe(filename)
@@ -249,6 +278,9 @@ def file_type_pointer(filename):
 
 
 def convert_size(byte_size):
+    """
+    converts bytes to readable size
+    """
     import math
 
     if byte_size == 0:
@@ -261,11 +293,19 @@ def convert_size(byte_size):
 
 
 def build_agent():
+    """
+    builds the User-Agent for the app based on user system info
+    :return:
+    """
+    import mcli.__version__ as ver
     _platform = platform.uname()
-    return f"mCLI/{VERSION} ({_platform.system};{_platform.version})"
+    return f"mCLI/{ver.VERSION} ({_platform.system};{_platform.version})"
 
 
 def get_file_basic_info(filename):
+    """
+    provides basic file information
+    """
     basename = os.path.basename(filename)
     path = os.path.dirname(filename)
     file_size = convert_size(os.path.getsize(filename))
@@ -279,6 +319,9 @@ def get_file_basic_info(filename):
 
 
 def integrate_external_commands(external_path):
+    """
+    integrate external commands for us to use in the terminal
+    """
     commands = []
     if external_path is None:
         return []
@@ -293,6 +336,9 @@ def integrate_external_commands(external_path):
 
 
 def compare_assembly_code(asm1, asm2, match_percent=None):
+    """
+    compare the assembly side by side
+    """
     parts1 = asm1.split("\n")
     parts2 = asm2.split("\n")
     rows = []
@@ -306,6 +352,9 @@ def compare_assembly_code(asm1, asm2, match_percent=None):
 
 
 def view_basic_threat_summary(summary):
+    """
+    basic threat summary
+    """
     signatures = [item['info']['title'] for item in summary['threat_score']['signatures']]
     print("\nDiscovered signatures:")
     for sig in signatures:
@@ -327,6 +376,9 @@ def view_basic_threat_summary(summary):
 
 
 def view_exif_data(exif_results):
+    """
+    view the exif data of a file
+    """
     misc_data = [
         [key, exif_results['misc_information'][key]] for key in exif_results['misc_information'].keys()
     ]
@@ -344,6 +396,72 @@ File Code Signature: {exif_results['code_signature']}
 
 
 def get_conf():
+    """
+    quick function to grab current config
+    """
     with open(CONFIG_FILE) as fh:
         return json.load(fh)
 
+
+def percent(part, whole):
+    """
+    gets the percentage of a number
+    """
+    try:
+        return 100 * float(part) / float(whole)
+    except ZeroDivisionError:
+        return 0
+
+
+def check_api(speak=False, check_amount=5, ping_test=False):
+    """
+    checks if the API is up or not using a variety of methods
+    """
+    import requests, time
+
+    searcher = re.compile("\<pre\>Cannot.GET.\/api\/\<\/pre\>")
+    url = "https://api.malcore.io/api/"
+    if ping_test:
+        responded = []
+        failed = []
+        for _ in range(check_amount):
+            try:
+                start_time = time.time()
+                req = requests.get(url, timeout=2)
+                end_time = time.time()
+                if req.status_code == 404:
+                    if searcher.search(req.text) is not None:
+                        responded.append(end_time - start_time)
+                else:
+                    failed.append(None)
+            except:
+                failed.append(None)
+        try:
+            average_response_time = sum(responded) / len(responded)
+        except ZeroDivisionError:
+            average_response_time = 'N/A'
+        total_successes = percent(len(responded), check_amount)
+        total_failures = percent(len(failed), check_amount)
+        if speak:
+            logger.info(
+                f"API success rate: {total_successes}% ({len(responded)}/{check_amount}), "
+                f"API failure rate: {total_failures}% ({len(failed)}/{check_amount}) "
+                f"average response time: {average_response_time} seconds"
+            )
+    else:
+        try:
+            req = requests.get(url, timeout=3)
+            if req.status_code == 404:
+                if searcher.search(req.text) is not None:
+                    return True
+        except:
+            return False
+
+
+def version_display():
+    """
+    display the current program version
+    """
+    import mcli.__version__ as ver
+
+    print(ver.VERSION)

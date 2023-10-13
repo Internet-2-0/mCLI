@@ -2,7 +2,7 @@ import base64
 import inspect
 import random
 
-from mcli.lib.settings import VERSION
+from mcli.__version__ import VERSION
 
 
 class Banner(object):
@@ -141,12 +141,14 @@ class Saying(object):
 
 
 def banner_choice():
-    display_banner = random.SystemRandom().randint(1, 10) < 5
-    if display_banner:
-        banner_class = Banner()
-        saying_class = Saying()
-        banner_method_names = [attr for attr in dir(banner_class) if inspect.ismethod(getattr(banner_class, attr))]
-        saying_method_names = [attr for attr in dir(saying_class) if inspect.ismethod(getattr(saying_class, attr))]
-        exec(f'banner_class.{random.SystemRandom().choice(banner_method_names)}()')
-        exec(f'saying_class.{random.SystemRandom().choice(saying_method_names)}()')
-        print("\n\n")
+    """
+    execute the banner randomly this way it's not always the same
+    :return:
+    """
+    banner_class = Banner()
+    saying_class = Saying()
+    banner_method_names = [attr for attr in dir(banner_class) if inspect.ismethod(getattr(banner_class, attr))]
+    saying_method_names = [attr for attr in dir(saying_class) if inspect.ismethod(getattr(saying_class, attr))]
+    exec(f'banner_class.{random.SystemRandom().choice(banner_method_names)}()')
+    exec(f'saying_class.{random.SystemRandom().choice(saying_method_names)}()')
+    print("\n\n")
