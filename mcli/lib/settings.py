@@ -465,3 +465,35 @@ def version_display():
     import mcli.__version__ as ver
 
     print(ver.VERSION)
+
+
+def check_for_updates():
+    """
+    check for updates
+    """
+    import requests
+    import mcli.__version__ as ver
+
+    logger.debug("checking for updates")
+    url = "https://raw.githubusercontent.com/Internet-2-0/mCLI/master/mcli/__version__.py"
+    try:
+        req = requests.get(url)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        req = None
+    if req is not None:
+        searcher = re.compile("\d+\.\d+\.\d+\.\d+")
+        results = searcher.findall(req.text)
+        if len(results) != 0:
+            version = results[0]
+            if version != ver.VERSION_NUM:
+                logger.warn(
+                    "there is a new version available, please download the newest version, "
+                    "automated issue creation will not work anymore"
+                )
+                logger.prompt("press enter to continue ...", semi_colon=False)
+        else:
+            logger.warn("there was no version found to check against")
+    else:
+        logger.warn("unable to check for updates")
