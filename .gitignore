@@ -5,3 +5,4 @@ t.*
 build/*
 dist/*
 mcli.egg*/*
+venv-l/*

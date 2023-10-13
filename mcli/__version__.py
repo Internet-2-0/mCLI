@@ -1,5 +1,5 @@
 # major.minor.patch.commit
-VERSION_NUM = "0.0.0.1"
+VERSION_NUM = "0.1.1.2"
 # nickname for the version
 VERSION_NICK = "eevee"
 # actual version string
