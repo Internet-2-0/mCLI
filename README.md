@@ -1,16 +1,20 @@
-<p align="left" width="100%"><img src=".github/images/mcli_logo.png"/></p>
+<p align="center" width="100%"><img width="525" height="472" src=".github/images/mcli_logo.png"/></p>
 
 mCLI is a CLI tool used to analyze malware using Malcore directly from your terminal. This allows easy and quick analysis and integration.
 
 # Installation
 
-`python setup.py install && mcli`
-
+```bash
+git clone https://github.com/Internet-2-0/mCLI.git && \
+  cd mCLI && \
+  python setup.py install && \
+  mcli
+```
 That's pretty much it.
 
 # Usage
 
-mCLI is able to be passed flags to perform analysis as well as drop into a terminal view to begin analysis. The CLI flags are as follows:
+mCLI can be used as a terminal tool and be passed flags to perform analysis as well as drop into its own terminal view to begin analysis. The CLI flags are as follows:
 
 ```
 usage: mcli [-h] [--wizard] [-f1 WORKINGFILE1] [-q] [--external-path IMPORTEXTERNAL] [-f2 WORKINGFILE2] [--group-by {5,10,15}] [--reload] [--hide] [--del-all] [--version]

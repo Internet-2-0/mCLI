@@ -4,6 +4,7 @@ import json
 import requests
 
 import mcli.lib.settings
+import mcli.__version__
 from msdk.api import MalcoreApiSdk
 from msdk.lib.settings import post_files
 from mcli.lib.logger import warn, error, info, fatal
@@ -22,7 +23,7 @@ class ExtendedMalcoreApi(MalcoreApiSdk):
         super().__init__(api_key, **kwargs)
         self.headers["X-No-Poll"] = 'True'
         self.headers['User-Agent'] = mcli.lib.settings.build_agent()
-        self.headers['Source'] = f'mCLI v{mcli.lib.settings.VERSION}'
+        self.headers['Source'] = f'mCLI v{mcli.__version__.VERSION}'
 
     def register(self, email, password):
         """
@@ -156,7 +157,7 @@ class ExtendedMalcoreApi(MalcoreApiSdk):
                 payload = {
                     "type": "interaction", "payload": {"message": f"unknown interaction with mCLI at {current_date}"}
                 }
-            self.headers['agentVersion'] = mcli.lib.settings.VERSION
+            self.headers['agentVersion'] = mcli.__version__.VERSION
             try:
                 requests.post(self.stats_url, json=payload, headers=self.headers)
             except:

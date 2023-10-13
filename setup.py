@@ -1,10 +1,11 @@
 from setuptools import find_packages, setup
+from mcli.__version__ import VERSION_NUM
 
 
 setup(
     name="mcli",
     packages=find_packages(),
-    version="0.0.0.1",
+    version=VERSION_NUM,
     description="mCLI is a CLI application used to analyze malware using Malcore directly from your terminal",
     author="Thomas Perkins",
     author_email="contact@malcore.io",

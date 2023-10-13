@@ -13,13 +13,6 @@ import tabulate
 import mcli.lib.logger as logger
 import mcli.api.mapi as mapi
 
-
-# major.minor.patch.commit
-VERSION_NUM = "0.0.0.1"
-# nickname for the version
-VERSION_NICK = "eevee"
-# actual version string
-VERSION = f"{VERSION_NUM}({VERSION_NICK})"
 # the $HOME path
 HOME = f"{os.path.expanduser('~')}/.mcli"
 # where the UUID cache is stored
@@ -304,8 +297,9 @@ def build_agent():
     builds the User-Agent for the app based on user system info
     :return:
     """
+    import mcli.__version__ as ver
     _platform = platform.uname()
-    return f"mCLI/{VERSION} ({_platform.system};{_platform.version})"
+    return f"mCLI/{ver.VERSION} ({_platform.system};{_platform.version})"
 
 
 def get_file_basic_info(filename):
@@ -468,4 +462,6 @@ def version_display():
     """
     display the current program version
     """
-    print(VERSION)
+    import mcli.__version__ as ver
+
+    print(ver.VERSION)

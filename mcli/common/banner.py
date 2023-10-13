@@ -2,7 +2,7 @@ import base64
 import inspect
 import random
 
-from mcli.lib.settings import VERSION
+from mcli.__version__ import VERSION
 
 
 class Banner(object):
