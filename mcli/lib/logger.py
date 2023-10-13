@@ -25,9 +25,9 @@ def fatal(s):
     print(f"[\033[91m!\033[0m][{time.strftime('%H:%M:%S')}] {s}")
 
 
-def prompt(s, hide=False, strip=True):
+def prompt(s, hide=False, strip=True, semi_colon=True):
     if not hide:
-        req = input(f"[?][{time.strftime('%H:%M:%S')}] {s}: ")
+        req = input(f"[?][{time.strftime('%H:%M:%S')}] {s}{':' if semi_colon else ''} ")
     else:
         req = getpass.getpass(f"[?][{time.strftime('%H:%M:%S')}] {s}: ")
     if strip:

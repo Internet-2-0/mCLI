@@ -3,7 +3,8 @@ import random
 import shutil
 import time
 
-from mcli.lib.settings import init, CURRENT_RUN_CONFIG, integrate_external_commands, get_conf, check_api, view_basic_threat_summary, HOME, version_display
+from mcli.lib.settings import init, CURRENT_RUN_CONFIG, integrate_external_commands, get_conf, check_api, \
+    view_basic_threat_summary, HOME, version_display, check_for_updates
 from mcli.common.banner import banner_choice
 from mcli.common.cli import Parser
 from mcli.lib.terminal_view import McliTerminal
@@ -34,6 +35,7 @@ def main():
     if opts.quickAnalysis:
         opts.skip = True
     init(reload=opts.reloadApiKey, skip_overview=opts.skip)
+    check_for_updates()
     Parser().write_config(opts)
     current_running_conf = json.load(open(CURRENT_RUN_CONFIG))
     if not current_running_conf["quickAnalysis"]:
