@@ -41,6 +41,8 @@ CURRENT_UUIDS = f"{HOME}/uuids.json"
 CONFIG_FILE = f"{HOME}/mcli.json"
 # current running config
 CURRENT_RUN_CONFIG = f"{HOME}/run.conf"
+# command history file
+HISTORY_FILE = f"{HOME}/.history"
 # useful links
 INSTRUCTION_LINKS = {
     "api_key_generation": "https://link.malcore.io/cli/key",
@@ -519,7 +521,26 @@ def check_for_updates():
         logger.warn("unable to check for updates")
 
 
+def display_pcap(data, diff=False):
+    """
+    show pcap analysis data
+    """
+    if diff:
+        results = data['data']['results']['packets']
+        if len(results) != 0:
+            for item in results:
+                print(item)
+                logger.prompt("press enter to continue ...", semi_colon=False)
+    else:
+        results = data['data']
+        for item in results:
+            print(f"{item['type']}: {item['value']}")
+
+
 def colorize_short_hands(usage_menu):
+    """
+    colorize the help menu
+    """
     new_menu = []
     for line in usage_menu.split("\n"):
         end = line.find("[")
@@ -533,6 +554,27 @@ def colorize_short_hands(usage_menu):
 
 
 def complete(keywords):
+    """
+    add tab auto completion
+    """
     self_completer = MalcoreCompleter(keywords)
     readline.set_completer(self_completer.complete_text)
     readline.parse_and_bind('tab: complete')
+
+
+def history(command, max_size=400, delete_all=False):
+    """
+    append history to a file for future use
+    """
+    if not delete_all:
+        if not os.path.exists(HISTORY_FILE):
+            open(HISTORY_FILE, 'a+').close()
+        current_size = os.path.getsize(HISTORY_FILE)
+        if current_size >= max_size:
+            writer = 'w'
+        else:
+            writer = 'a+'
+        with open(HISTORY_FILE, writer) as fh:
+            fh.write(f"{command}{os.linesep}")
+    else:
+        open(HISTORY_FILE, 'w').close()

@@ -35,7 +35,8 @@ def main():
     if opts.quickAnalysis:
         opts.skip = True
     init(reload=opts.reloadApiKey, skip_overview=opts.skip)
-    check_for_updates()
+    if not opts.skipVerCheck:
+        check_for_updates()
     Parser().write_config(opts)
     current_running_conf = json.load(open(CURRENT_RUN_CONFIG))
     if not current_running_conf["quickAnalysis"]:

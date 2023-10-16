@@ -71,5 +71,9 @@ class Parser(argparse.ArgumentParser):
             "--version", default=False, action="store_true", dest="showVersion",
             help="Show program version and exit"
         )
+        parser.add_argument(
+            "--skip-ver-check", default=False, action="store_true", dest="skipVerCheck",
+            help=argparse.SUPPRESS
+        )
         return parser.parse_args()
 

@@ -5,6 +5,7 @@ import random
 import mcli.lib.logger as log
 import mcli.lib.settings as settings
 import mcli.api.mapi as mcli_api
+import mcli.common.check_file_type as file_type_check
 
 
 class McliTerminal(object):
@@ -22,17 +23,26 @@ class McliTerminal(object):
         "ex", "exif", "apikey", "api",
         "del", "delete", "vi", "view",
         "sw", "swap", "fileswap", "ping",
-        "ver", "version", "ch", "gro", "pi"
+        "ver", "version", "ch", "gro", "pi",
+        "pcap", "pc", "hi", "history"
     )
     loaded_external_commands = []
 
     def __init__(self, external_commands):
-        self.terminal_start = f"rootm@mcli:~/.malcore# "
+        self.terminal_start = f"\033[92mroot\033[0m@\033[91mmcli\033[0m:~/.malcore# "
         self.quit_terminal = False
         self.external_commands = external_commands
+        self.history = []
 
     def load_external(self):
         self.loaded_external_commands = self.external_commands
+
+    def reflect_memory(self):
+        if os.path.exists(settings.HISTORY_FILE):
+            with open(settings.HISTORY_FILE) as fh:
+                for item in fh.readlines():
+                    item = item.strip()
+                    self.history.append(item)
 
     def get_choice(self):
         original_choice = input(f"{self.terminal_start}")
@@ -94,7 +104,9 @@ del[ete] UUID                   Manually remove a UUID from the cache list
 vi[ew]                          List your available endpoints with your plan and your scans per month
 sw[ap]                          Swap working files, filename1 -> filename2; filename2 -> filename1
 pi[ng]                          Ping the Malcore API to see if it's online
-ver[sion]                       Show current program version"""
+ver[sion]                       Show current program version
+
+hi]story]                       View mCLI command history"""
         settings.colorize_short_hands(usage_menu)
 
     def do_exit(self, api):
@@ -114,6 +126,8 @@ ver[sion]                       Show current program version"""
             "reversing files is easier than deciphering human behavior ...",
             "leaving the Matrix ...", "`shutdown -t now -r`", "shutting down mCLI"
         )
+        for command in self.history:
+            settings.history(command)
         api.send_statistics(is_shutdown=True)
         saying = random.SystemRandom().choice(exit_sayings)
         print(f"[::][{time.strftime('%H:%M:%S')}] {saying}")
@@ -125,12 +139,25 @@ ver[sion]                       Show current program version"""
         """
         import subprocess
 
+        self.add_to_history(command)
         subprocess.call(command, shell=True)
+
+    def reflect_history(self):
+        if os.path.exists(settings.HISTORY_FILE):
+            with open(settings.HISTORY_FILE) as fh:
+                for item in fh.readlines():
+                    if item != '':
+                        self.history.append(item.strip())
+
+    def add_to_history(self, command):
+
+        self.history.append(command)
 
     def terminal_main(self):
         """
         main terminal function
         """
+        self.reflect_history()
         conf_file = settings.CONFIG_FILE
         passed_config = settings.CURRENT_RUN_CONFIG
         api = mcli_api.ExtendedMalcoreApi(json.load(open(conf_file))["api_key"])
@@ -169,22 +196,58 @@ ver[sion]                       Show current program version"""
                     elif choice_type == "external":
                         self.perform_external_command(choice)
                     elif choice in ("ver", "version"):
+                        self.add_to_history(choice)
                         settings.version_display()
+                    elif choice in ("pc", "pcap"):
+                        self.add_to_history(choice)
+                        if filename is None:
+                            log.warn("must at least have filename1 filled to analyze PCAP")
+                        else:
+                            log.info("launching PCAP analysis")
+                            if secondary_filename is not None:
+                                do_diff = log.prompt("are you wanting to perform a PCAP diff? [y/n]")
+                                if do_diff == "y":
+                                    do_pcap_diff = True
+                                else:
+                                    do_pcap_diff = False
+                            else:
+                                do_pcap_diff = False
+                            if do_pcap_diff:
+                                log.debug("will be performing PCAP diff")
+                                filename1_good = file_type_check.is_pcap(filename)
+                                filename2_good = file_type_check.is_pcap(secondary_filename)
+                                if filename1_good and filename2_good:
+                                    res = api.pcap_diff(filename, secondary_filename)
+                                    settings.display_pcap(res, diff=True)
+                                else:
+                                    log.warn("one or more of your files are not a PCAP file, check and try again")
+                            else:
+                                log.debug("will be performing single PCAP file analysis")
+                                filename1_good = file_type_check.is_pcap(filename)
+                                if filename1_good:
+                                    res = api.pcap_analysis(filename)
+                                    print(res)
+                                else:
+                                    log.warn("filename1 is not a PCAP file, check and try again")
                     elif choice in ("ping", "pi"):
+                        self.add_to_history(choice)
                         log.info("checking if API is online")
                         settings.check_api(speak=True, ping_test=True)
                     elif choice in ("sw", "fileswap", "swap"):
+                        self.add_to_history(choice)
                         if filename is not None:
                             filename, secondary_filename = secondary_filename, filename
                             log.info(f"filename1=@{filename}; filename2=@{secondary_filename}")
                         else:
                             log.warn("no working files are currently loaded, load with `newfile PATH`")
                     elif choice in ("vi", "view"):
+                        self.add_to_history(choice)
                         conf = settings.get_conf()
                         print("Endpoint name,Monthly limit\n---------------------------")
                         for endpoint in conf['available_endpoints']:
                             print(f"{endpoint['endpoint_name']},{endpoint['monthly_limit']}")
                     elif any(c in choice for c in ("del", "delete")):
+                        self.add_to_history(choice)
                         uuid_to_remove = choice.split(" ")
                         if uuid_to_remove == "" or len(uuid_to_remove) == 1:
                             log.warn("no UUID passed, you must pass a UUID to remove one manually")
@@ -192,10 +255,12 @@ ver[sion]                       Show current program version"""
                             uuid = uuid_to_remove[-1]
                             settings.uuid_cache(uuid, delete_uuid=True)
                     elif choice in ("ex", "exif"):
+                        self.add_to_history(choice)
                         log.info(f"gathering exif data out of current working file (filename1=@{filename})")
                         results = api.parse_exif_data(filename)['data']
                         settings.view_exif_data(results)
                     elif choice in ("apikey", "api"):
+                        self.add_to_history(choice)
                         file_ = settings.CONFIG_FILE
                         data = json.load(open(file_))["api_key"]
                         log.info(f"current loaded API key: {data}")
@@ -205,8 +270,10 @@ ver[sion]                       Show current program version"""
                         )
                     else:
                         if choice in ("?", "help", "he"):
+                            self.add_to_history(choice)
                             self.help_menu()
                         elif any(c in choice for c in ["groupby", "gro"]):
+                            self.add_to_history(choice)
                             choices = (5, 10, 15)
                             integer_passed = choice.split(" ")[-1]
                             try:
@@ -223,6 +290,7 @@ ver[sion]                       Show current program version"""
                                 log.error(f"unable to change group_by integer, received error: '{str(e)}'")
                                 pass
                         elif choice in ("re", "reuse"):
+                            self.add_to_history(choice)
                             if filename is None:
                                 self.no_working_file()
                             elif secondary_filename is None:
@@ -255,6 +323,7 @@ ver[sion]                       Show current program version"""
                                         else:
                                             log.warn("no results for associated key")
                         elif choice in ("info", "information"):
+                            self.add_to_history(choice)
                             if filename is None:
                                 self.no_working_file()
                             else:
@@ -266,11 +335,13 @@ ver[sion]                       Show current program version"""
                                     except:
                                         print(f"\t- {key}: {results[key]}")
                         elif choice in ("external", "ext"):
+                            self.add_to_history(choice)
                             log.info(f"total of {len(self.loaded_external_commands)} external command(s) integrated")
                             question = log.prompt("print all external commands")
                             if question.lower() == "y":
                                 print(",".join(self.loaded_external_commands))
                         elif choice in ("analyze", "analysis", "anal"):
+                            self.add_to_history(choice)
                             too_many_uuids = settings.uuid_cache(None, count_all=True)
                             if not too_many_uuids:
                                 if filename is None:
@@ -306,6 +377,7 @@ ver[sion]                       Show current program version"""
                                                 "explain your needs to us so we can further assist you."
                                             )
                         elif any(x in choice for x in ["status", "check", "uuid", "uu", "sea", "search"]):
+                            self.add_to_history(choice)
                             try:
                                 uuid = choice.split(" ")[-1].strip()
                                 searched = settings.uuid_cache(uuid, search_all=True)
@@ -328,6 +400,7 @@ ver[sion]                       Show current program version"""
                             except KeyError:
                                 log.info("it appears the file is not done being analyzed, please wait and try again")
                         elif choice in ("hashes", "hashsum", "hash"):
+                            self.add_to_history(choice)
                             if filename is not None:
                                 log.info("gathering hashes for current working file")
                                 try:
@@ -339,8 +412,10 @@ ver[sion]                       Show current program version"""
                             else:
                                 log.warn("there is not current working file to generate hashsums with")
                         elif choice in ("cache", "ca"):
+                            self.add_to_history(choice)
                             settings.uuid_cache(None, show_all=True)
                         elif any(x in choice for x in ["newfile", "new"]):
+                            self.add_to_history(choice)
                             try:
                                 choice_data = choice.split(" ")
                                 if len(choice_data) > 2:
@@ -369,6 +444,7 @@ ver[sion]                       Show current program version"""
                                 log.warn("provided filename does not exist, or you did not pass a file")
                                 filename = None
                         elif choice in ("showfile", "sho"):
+                            self.add_to_history(choice)
                             file_added_color = "\033[92m"
                             file_not_added_color = "\033[91m"
                             end_color = "\033[0m"
@@ -383,7 +459,11 @@ ver[sion]                       Show current program version"""
                                 log_str += f" {file_not_added_color}filename2{end_color}=@NUL"
                             log.debug(log_str)
                         elif choice in ("quit", "exit", "exi", "qui"):
+                            self.add_to_history(choice)
                             self.do_exit(api)
+                        elif choice in ("hi", "history"):
+                            for item in self.history:
+                                print(item)
                 except KeyboardInterrupt:
                     print("^C")
                     log.warn("use the `exit` command to exit the terminal")
