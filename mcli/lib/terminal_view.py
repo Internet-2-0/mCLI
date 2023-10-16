@@ -11,23 +11,23 @@ class McliTerminal(object):
 
     terminal_commands = (
         "search", "analyze", "hashsum",
-        "status", "quit", "help", "?",
+        "status", "quit", "help", "?", "he",
         "analysis", "check", "uuid",
         "hashes", "hash", "exit",
-        "cache", "show", "newfile",
+        "cache", "newfile",
         "showfile", "info", "information",
         "anal", "external", "ca", "sho",
-        "ex", "qu", "ext", "sea", "new",
+        "exi", "qui", "ext", "sea", "new",
         "uu", "re", "reuse", "groupby",
-        "ex", "exif", "key", "apikey",
+        "ex", "exif", "apikey", "api",
         "del", "delete", "vi", "view",
         "sw", "swap", "fileswap", "ping",
-        "ver", "version"
+        "ver", "version", "ch", "gro", "pi"
     )
     loaded_external_commands = []
 
     def __init__(self, external_commands):
-        self.terminal_start = "\033[94mroot\033[0m@\033[93mmcli\033[0m:\033[91m~/.malcore\033[0m# "
+        self.terminal_start = f"rootm@mcli:~/.malcore# "
         self.quit_terminal = False
         self.external_commands = external_commands
 
@@ -64,28 +64,38 @@ class McliTerminal(object):
         """
         help function
         """
-        print("""\n
+        print("""
 Available Commands:             Description:
-------------------              ------------\n
-help|?                          Print this help
-sea[rch]|check|uu[id] [UUID]    Provide a UUID to check the status of your upload
+------------------              ------------""")
+        usage_menu = """
+he[lp]                          Print this help
+?                          
+
+sea[rch] UUID                   Provide a UUID to check the status of your upload
+ch[eck]  UUID
+uu[id]   UUID
+
 anal[ysis|yze]                  Start full analysis on the current working file
 hash[sum|es]                    Gather hashsums of the current working file
-ca[che]|sho[w]                  Show the current stored UUID's
+ca[che]                         Show the current stored UUID's
+show  
+
 new[file] [*1|2] [FILE]         Pass to change the current working files
-showfile                        Pass to show the current working files
+sho[wfile]                      Pass to show the current working files
 ext[ernal]                      View integrated external commands
 re[use]                         Pass to perform code reuse analysis on two files
-groupby [*5|10|15]              Pass to change the 'group_by' integer for code reuse analysis
+gro[upby] [*5|10|15]            Pass to change the 'group_by' integer for code reuse analysis
 ex[if]                          Gather exif data from the current working file
-[api]key                        View your current saved API key
-ex[it]|qu[it]                   Pass this to exit the terminal
+api[key]                        View your current saved API key
+exi[t]                          Pass this to exit the terminal
+qui[t] 
+
 del[ete] UUID                   Manually remove a UUID from the cache list
 vi[ew]                          List your available endpoints with your plan and your scans per month
-[file]sw[ap]                    Swap working files, filename1 -> filename2; filename2 -> filename1
-ping                            Ping the Malcore API to see if it's online
-ver[sion]                       Show current program version
-\n""")
+sw[ap]                          Swap working files, filename1 -> filename2; filename2 -> filename1
+pi[ng]                          Ping the Malcore API to see if it's online
+ver[sion]                       Show current program version"""
+        settings.colorize_short_hands(usage_menu)
 
     def do_exit(self, api):
         """
@@ -151,6 +161,7 @@ ver[sion]                       Show current program version
         log.debug("to see the help menu type `help` or `?`")
         try:
             while not self.quit_terminal:
+                settings.complete(self.terminal_commands)
                 try:
                     choice_type, choice = self.get_choice()
                     if choice_type == "unknown":
@@ -159,7 +170,7 @@ ver[sion]                       Show current program version
                         self.perform_external_command(choice)
                     elif choice in ("ver", "version"):
                         settings.version_display()
-                    elif choice in ("ping",):
+                    elif choice in ("ping", "pi"):
                         log.info("checking if API is online")
                         settings.check_api(speak=True, ping_test=True)
                     elif choice in ("sw", "fileswap", "swap"):
@@ -184,7 +195,7 @@ ver[sion]                       Show current program version
                         log.info(f"gathering exif data out of current working file (filename1=@{filename})")
                         results = api.parse_exif_data(filename)['data']
                         settings.view_exif_data(results)
-                    elif choice in ("key", "apikey"):
+                    elif choice in ("apikey", "api"):
                         file_ = settings.CONFIG_FILE
                         data = json.load(open(file_))["api_key"]
                         log.info(f"current loaded API key: {data}")
@@ -193,9 +204,9 @@ ver[sion]                       Show current program version
                             "with the `--reload` flag."
                         )
                     else:
-                        if choice in ("?", "help"):
+                        if choice in ("?", "help", "he"):
                             self.help_menu()
-                        elif any(c in choice for c in ["groupby",]):
+                        elif any(c in choice for c in ["groupby", "gro"]):
                             choices = (5, 10, 15)
                             integer_passed = choice.split(" ")[-1]
                             try:
@@ -327,7 +338,7 @@ ver[sion]                       Show current program version
                                     log.error(f"got error while gathering hashes: {str(e)}")
                             else:
                                 log.warn("there is not current working file to generate hashsums with")
-                        elif choice in ("cache", "show", "ca", "sho"):
+                        elif choice in ("cache", "ca"):
                             settings.uuid_cache(None, show_all=True)
                         elif any(x in choice for x in ["newfile", "new"]):
                             try:
@@ -357,9 +368,21 @@ ver[sion]                       Show current program version
                             if not os.path.exists(filename):
                                 log.warn("provided filename does not exist, or you did not pass a file")
                                 filename = None
-                        elif choice in ("showfile",):
-                            log.info(f"current working files: filename1=@{filename} filename2=@{secondary_filename}")
-                        elif choice in ("quit", "exit", "ex", "qu"):
+                        elif choice in ("showfile", "sho"):
+                            file_added_color = "\033[92m"
+                            file_not_added_color = "\033[91m"
+                            end_color = "\033[0m"
+                            log_str = "current working files: "
+                            if filename is not None:
+                                log_str += f"{file_added_color}filename1{end_color}=@{filename}"
+                            else:
+                                log_str += f"{file_not_added_color}filename1{end_color}=@NUL"
+                            if secondary_filename is not None:
+                                log_str += f" {file_added_color}filename2{end_color}=@{secondary_filename}"
+                            else:
+                                log_str += f" {file_not_added_color}filename2{end_color}=@NUL"
+                            log.debug(log_str)
+                        elif choice in ("quit", "exit", "exi", "qui"):
                             self.do_exit(api)
                 except KeyboardInterrupt:
                     print("^C")

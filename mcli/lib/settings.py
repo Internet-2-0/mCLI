@@ -3,6 +3,7 @@ import platform
 import random
 import re
 import json
+import readline
 import shutil
 import sys
 import hashlib
@@ -12,6 +13,25 @@ import tabulate
 
 import mcli.lib.logger as logger
 import mcli.api.mapi as mapi
+
+
+class MalcoreCompleter(object):
+
+    def __init__(self, opts):
+        self.opts = sorted(opts)
+        self.possible_matches = []
+
+    def complete_text(self, text, state):
+        if state == 0:
+            if text:
+                self.possible_matches = [m for m in self.opts if m and m.startswith(text)]
+            else:
+                self.possible_matches = self.opts[:]
+        try:
+            return self.possible_matches[state]
+        except IndexError:
+            return None
+
 
 # the $HOME path
 HOME = f"{os.path.expanduser('~')}/.mcli"
@@ -497,3 +517,22 @@ def check_for_updates():
             logger.warn("there was no version found to check against")
     else:
         logger.warn("unable to check for updates")
+
+
+def colorize_short_hands(usage_menu):
+    new_menu = []
+    for line in usage_menu.split("\n"):
+        end = line.find("[")
+        start = 0
+        if end == -1:
+            new_menu.append(line)
+        else:
+            new_menu.append(f"\033[97m{line[start:end]}\033[0m" + line[end:])
+    print("\n".join(new_menu))
+    print()
+
+
+def complete(keywords):
+    self_completer = MalcoreCompleter(keywords)
+    readline.set_completer(self_completer.complete_text)
+    readline.parse_and_bind('tab: complete')
