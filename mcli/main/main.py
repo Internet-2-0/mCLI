@@ -1,4 +1,5 @@
 import json
+import os
 import random
 import shutil
 import time
@@ -35,7 +36,8 @@ def main():
     if opts.quickAnalysis:
         opts.skip = True
     init(reload=opts.reloadApiKey, skip_overview=opts.skip)
-    check_for_updates()
+    if not opts.skipVerCheck:
+        check_for_updates()
     Parser().write_config(opts)
     current_running_conf = json.load(open(CURRENT_RUN_CONFIG))
     if not current_running_conf["quickAnalysis"]:
@@ -71,9 +73,9 @@ def main():
                             is_done = False
                             attempt = 0
                             while not is_done:
-                                attempt += 1
                                 current_results = api.status_check(results['data']['uuid'])
                                 if "status" in current_results.keys():
+                                    attempt += 1
                                     # 0.4, 1.6, 6.4, ...
                                     sleep_time = random.uniform(0, 4 ** attempt * 100 / 1000.0)
                                     debug(f"file is not done processing, sleeping for {round(sleep_time, 2)} seconds")
@@ -83,5 +85,12 @@ def main():
                                     threat_data = current_results['threat_score']
                                     view_basic_threat_summary({"threat_score": threat_data['results']})
                                     is_done = True
+                            if opts.deleteAfterAnalysis:
+                                debug("file deletion requested after quick analysis")
+                                try:
+                                    os.remove(filename1)
+                                    info("file deleted successfully")
+                                except Exception as e:
+                                    error(f"caught an error trying to delete the file: {str(e)}")
                     except Exception as e:
                         fatal(f"caught error: {str(e)} while analyzing file: {filename1}")

@@ -71,5 +71,13 @@ class Parser(argparse.ArgumentParser):
             "--version", default=False, action="store_true", dest="showVersion",
             help="Show program version and exit"
         )
+        parser.add_argument(
+            "--skip-ver-check", default=False, action="store_true", dest="skipVerCheck",
+            help=argparse.SUPPRESS
+        )
+        parser.add_argument(
+            "--delete-file", default=False, action="store_true", dest="deleteAfterAnalysis",
+            help="Delete the file after it has been analyzed"
+        )
         return parser.parse_args()
 

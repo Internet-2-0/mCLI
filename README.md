@@ -82,8 +82,8 @@ Analyzing the files is as simple as starting the analysis and waiting for it to 
 
 Clone the dev branch and make your own branch, make a PR explaining what you did, why you did it, and how it will help. 
 
-[<br><br><br><br><p align="center" width="100%"><img src=".github/images/malcore_logo.png"/></p>](https://link.malcore.io/readme/redirect)
-
 # Issues
 
 Make an [issue on our Github](https://link.malcore.io/readme/issue), and we will get to it as quickly as possible
+
+[<br><br><br><br><p align="center" width="100%"><img src=".github/images/malcore_logo.png"/></p>](https://link.malcore.io/readme/redirect)

@@ -136,7 +136,10 @@ class ExtendedMalcoreApi(MalcoreApiSdk):
         else:
             do_stats = False
         if do_stats:
-            del self.headers['X-No-Poll']
+            try:
+                del self.headers['X-No-Poll']
+            except:
+                pass
             if is_start:
                 payload = {
                     "type": "started", "payload": {"message": f"mCLI started at: {current_date}"}
@@ -159,7 +162,7 @@ class ExtendedMalcoreApi(MalcoreApiSdk):
                 }
             self.headers['agentVersion'] = mcli.__version__.VERSION
             try:
-                requests.post(self.stats_url, json=payload, headers=self.headers)
+                requests.post(self.stats_url, json=payload, headers=self.headers, timeout=3)
             except:
                 pass
 

@@ -1,3 +1,5 @@
+import sys
+
 from setuptools import find_packages, setup
 from mcli.__version__ import VERSION_NUM
 
@@ -14,6 +16,8 @@ def monkey_patch():
         pip.main(["install", "wheel"])
     if "tabulate" not in installed_packages:
         pip.main(["install", "tabulate"])
+    if "win" in sys.platform:
+        pip.main(["install", "pyreadline3"])
     pip.main(["install", "msdk==0.1.6.8"])
 
 
