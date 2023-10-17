@@ -1,4 +1,5 @@
 import json
+import os
 import random
 import shutil
 import time
@@ -84,5 +85,12 @@ def main():
                                     threat_data = current_results['threat_score']
                                     view_basic_threat_summary({"threat_score": threat_data['results']})
                                     is_done = True
+                            if opts.deleteAfterAnalysis:
+                                debug("file deletion requested after quick analysis")
+                                try:
+                                    os.remove(filename1)
+                                    info("file deleted successfully")
+                                except Exception as e:
+                                    error(f"caught an error trying to delete the file: {str(e)}")
                     except Exception as e:
                         fatal(f"caught error: {str(e)} while analyzing file: {filename1}")
