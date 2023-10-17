@@ -226,7 +226,7 @@ hi]story]                       View mCLI command history"""
                                 filename1_good = file_type_check.is_pcap(filename)
                                 if filename1_good:
                                     res = api.pcap_analysis(filename)
-                                    print(res)
+                                    settings.display_pcap(res, diff=False)
                                 else:
                                     log.warn("filename1 is not a PCAP file, check and try again")
                     elif choice in ("ping", "pi"):

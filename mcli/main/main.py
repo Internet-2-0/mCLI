@@ -72,9 +72,9 @@ def main():
                             is_done = False
                             attempt = 0
                             while not is_done:
-                                attempt += 1
                                 current_results = api.status_check(results['data']['uuid'])
                                 if "status" in current_results.keys():
+                                    attempt += 1
                                     # 0.4, 1.6, 6.4, ...
                                     sleep_time = random.uniform(0, 4 ** attempt * 100 / 1000.0)
                                     debug(f"file is not done processing, sleeping for {round(sleep_time, 2)} seconds")
