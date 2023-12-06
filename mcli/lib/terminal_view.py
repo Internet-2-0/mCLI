@@ -108,7 +108,7 @@ sw[ap]                          Swap working files, filename1 -> filename2; file
 pi[ng]                          Ping the Malcore API to see if it's online
 ver[sion]                       Show current program version
 
-hi]story]                       View mCLI command history"""
+hi[story]                       View mCLI command history"""
         settings.colorize_short_hands(usage_menu)
 
     def do_exit(self, api):

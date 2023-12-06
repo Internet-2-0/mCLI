@@ -1,5 +1,5 @@
 # major.minor.patch.commit
-VERSION_NUM = "1.6.4.11"
+VERSION_NUM = "1.6.4.12"
 # nickname for the version
 VERSION_NICK = "umbreon2"
 # actual version string
