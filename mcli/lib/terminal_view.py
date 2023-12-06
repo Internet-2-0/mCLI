@@ -24,7 +24,8 @@ class McliTerminal(object):
         "del", "delete", "vi", "view",
         "sw", "swap", "fileswap", "ping",
         "ver", "version", "ch", "gro", "pi",
-        "pcap", "pc", "hi", "history"
+        "pcap", "pc", "hi", "history",
+        "pl", "plugin"
     )
     loaded_external_commands = []
 
@@ -99,6 +100,7 @@ ex[if]                          Gather exif data from the current working file
 api[key]                        View your current saved API key
 exi[t]                          Pass this to exit the terminal
 qui[t] 
+pl[ugin]                        Use the current plugins
 
 del[ete] UUID                   Manually remove a UUID from the cache list
 vi[ew]                          List your available endpoints with your plan and your scans per month
@@ -198,6 +200,44 @@ hi]story]                       View mCLI command history"""
                     elif choice in ("ver", "version"):
                         self.add_to_history(choice)
                         settings.version_display()
+                    elif any(c in choice for c in ["pl", "plugin"]):
+                        self.add_to_history(choice)
+                        parts = choice.split(" ")
+                        acceptable_options = ("list", "compile", "run")
+                        if len(parts) == 1:
+                            log.warn(
+                                f"you did not provide an action option, acceptable options: "
+                                f"{','.join(list(acceptable_options))}"
+                            )
+                        else:
+                            action = parts[1]
+                            if action == "list":
+                                listable_plugins = settings.list_plugins()
+                                for plugin in listable_plugins:
+                                    print(plugin)
+                            elif action == "compile":
+                                settings.compile_plugin()
+                            elif action == "run":
+                                if len(parts) < 3:
+                                    log.warn(
+                                        "not enough arguments provided, you need to pass the action, the "
+                                        "plugin name, and the arguments as JSON encodable example: "
+                                        "pl run disasm '{\"show_help\":true}'"
+                                    )
+                                else:
+                                    try:
+                                        kwargs = json.loads(parts[3])
+                                    except Exception as e:
+                                        log.error(f"unable to load keyword args, defaulting to empty dict,"
+                                                  f" error: {str(e)}")
+                                        kwargs = {}
+                                    if filename is None:
+                                        log.warn("no file has been loaded to work with")
+                                    else:
+                                        kwargs['filename'] = filename
+                                        loaded = settings.load_plugin(parts[2])
+                                        args = ()
+                                        loaded.plugin(*args, **kwargs)
                     elif choice in ("pc", "pcap"):
                         self.add_to_history(choice)
                         if filename is None:

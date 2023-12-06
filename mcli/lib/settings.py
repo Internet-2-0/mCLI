@@ -598,6 +598,13 @@ def compile_plugin():
 
 def load_plugin(name):
     name = f"{name}.pyc"
+    path = PLUGIN_PATH
+    full_path = f"{path}/{name}"
+    path, fname = os.path.split(full_path)
+    modulename, _ = os.path.splitext(fname)
+    if path not in sys.path:
+        sys.path.insert(0, path)
+    return __import__(modulename)
 
 
 def list_plugins():
@@ -608,6 +615,3 @@ def list_plugins():
             name = plugin.split(".")[0]
             available.add(name)
     return list(available)
-
-
-

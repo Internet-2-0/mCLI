@@ -8,14 +8,31 @@ import mcli.lib.settings as settings
 import mcli.lib.logger as logger
 
 
+__help__ = """
+This plugin is designed to disassemble binary files and display the disassembly or write it to a file.
+
+Available Arguments:
+    filename    -> full path to the file to disassemble *default=None **REQUIRED
+    arch        -> the architecture you're trying to decompile acceptable 16,32,64 *default=64
+    offset      -> the offset to start the decompilation at if using capstone *default=0x0
+    out_file    -> full path to a file to save the disassembly instructions to *default=None
+    show_help   -> show this help menu and exit
+"""
+
+
 def plugin(*args, **kwargs):
     filename = kwargs.get("filename", None)
     arch = kwargs.get("arch", None)
     offset = kwargs.get("offset", 0x0)
     out_file = kwargs.get("out_file", None)
+    show_help = kwargs.get("show_help", False)
+
+    if show_help:
+        print(__help__)
+        return
 
     if filename is None:
-        logger.warn("is there a current working file opened?")
+        logger.warn("no filename was passed?")
     else:
         if out_file is not None:
             logger.info(f"will write to outfile: {out_file} instead of displaying results")

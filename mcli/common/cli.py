@@ -84,5 +84,16 @@ class Parser(argparse.ArgumentParser):
             help=f"Attempt to compile plugins that are located in the plugin directory "
                  f"(location: {settings.PLUGIN_PATH})"
         )
+        parser.add_argument(
+            "--list-plugins", default=False, action="store_true", dest="listAllPlugins",
+            help="List all available loadable plugins"
+        )
+        parser.add_argument(
+            "--load-plugin", nargs=1, default=None, dest="loadPluginName",
+            help=f"Load a plugin by passing the name of the plugin to load"
+        )
+        parser.add_argument(
+            "--plugin-args", type=str, default="{}", dest="pluginArgs",
+            help="Pass plugin arguments to start the plugin. Must be JSON encodable"
+        )
         return parser.parse_args()
-

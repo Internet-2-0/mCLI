@@ -12,7 +12,21 @@ import mcli.lib.settings as settings
 import mcli.lib.logger as logger
 
 
+__help__ = """
+This plugin is designed to install radare2 on the users system. It does not require any arguments.
+
+Available Arguments:
+    show_help   -> show this help menu and exit
+"""
+
+
 def plugin(*args, **kwargs):
+    show_help = kwargs.get("show_help", False)
+
+    if show_help:
+        print(__help__)
+        return
+
     conf = settings.get_conf()
     if 'disasm_info' in conf.keys():
         if conf['disasm_info']['is_r2_installed']:
