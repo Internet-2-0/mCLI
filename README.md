@@ -78,14 +78,6 @@ Analyzing the files is as simple as starting the analysis and waiting for it to 
 
 ![overview-analysis](.github/images/analysis_overview.PNG)
 
-# Contribute
-
-Clone the dev branch and make your own branch, make a PR explaining what you did, why you did it, and how it will help. 
-
-# Issues
-
-Make an [issue on our Github](https://link.malcore.io/readme/issue), and we will get to it as quickly as possible
-
 # Creating plugins
 
 mCLI comes with the ability to create your own plugins. A plugin template has been provided for you in the [templates](./templates/) folder. Designing your own plugin is pretty straight forward and requires you to put the plugin in the `~/.mcli_plugins` folder in your environment. Once the plugin has been added to the plugins folder you can try to compile the plugin. If the plugin is compiled successfully you can now use it from within mCLI using the `--load-plugin` flag or by dropping into the terminal and using `pl[ugin]`
@@ -120,6 +112,14 @@ def plugin(*args, **kwargs):
     # print 'Hello World'
     print('Hello World')
 ```
+
+# Contribute
+
+Clone the dev branch and make your own branch, make a PR explaining what you did, why you did it, and how it will help. 
+
+# Issues
+
+Make an [issue on our Github](https://link.malcore.io/readme/issue), and we will get to it as quickly as possible
 
 [<br><br><br><br><p align="center" width="100%"><img src=".github/images/malcore_logo.png"/></p>](https://link.malcore.io/readme/redirect)
 
