@@ -35,6 +35,8 @@ class MalcoreCompleter(object):
 
 # the $HOME path
 HOME = f"{os.path.expanduser('~')}/.mcli"
+# path to all the plugins
+PLUGIN_PATH = f"{os.path.expanduser('~')}/.mcli_plugins"
 # where the UUID cache is stored
 CURRENT_UUIDS = f"{HOME}/uuids.json"
 # config file
@@ -578,3 +580,34 @@ def history(command, max_size=400, delete_all=False):
             fh.write(f"{command}{os.linesep}")
     else:
         open(HISTORY_FILE, 'w').close()
+
+
+def compile_plugin():
+    import py_compile
+
+    path = PLUGIN_PATH
+    for plugin_file in os.listdir(path):
+        if ".pyc" not in plugin_file:
+            output_name = f"{plugin_file}c"
+            try:
+                py_compile.compile(f"{path}/{plugin_file}", f"{path}/{output_name}")
+                logger.info(f"file: {plugin_file} compiled successfully")
+            except Exception as e:
+                logger.error(f"unable to compile file: {plugin_file} got error: {str(e)}")
+
+
+def load_plugin(name):
+    name = f"{name}.pyc"
+
+
+def list_plugins():
+    available = set()
+    plugins = [f for f in os.listdir(PLUGIN_PATH)]
+    for plugin in plugins:
+        if ".pyc" in plugin and "__init" not in plugin:
+            name = plugin.split(".")[0]
+            available.add(name)
+    return list(available)
+
+
+

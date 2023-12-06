@@ -1,7 +1,12 @@
+import os
 import sys
+import shutil
 
 from setuptools import find_packages, setup
 from mcli.__version__ import VERSION_NUM
+
+
+PLUGIN_PATH = f"{os.path.expanduser('~')}/.mcli_plugins"
 
 
 def monkey_patch():
@@ -21,22 +26,35 @@ def monkey_patch():
     pip.main(["install", "msdk==0.1.6.8"])
 
 
-setup(
-    name="mcli",
-    packages=find_packages(),
-    version=VERSION_NUM,
-    description="mCLI is a CLI application used to analyze malware using Malcore directly from your terminal",
-    author="Thomas Perkins",
-    author_email="contact@malcore.io",
-    install_requires=["requests", "tabulate"],
-    long_description=open("README.md").read(),
-    long_description_content_type='text/markdown',
-    url='https://github.com/Internet-2-0/mCLI',
-    entry_points={
-        'console_scripts': [
-            'mcli=mcli.cli_tool:run'
-        ]
-    }
-)
+def move_plugins():
+    current_plugin_path = f"{os.getcwd()}/mcli/plugins"
+    if not os.path.exists(PLUGIN_PATH):
+        os.makedirs(PLUGIN_PATH)
+    for file_ in os.listdir(current_plugin_path):
+        try:
+            shutil.copy(f"{current_plugin_path}/{file_}", PLUGIN_PATH)
+        except:
+            print(f"file: {file_} failed to move, skipping")
 
-monkey_patch()
+
+if __name__ == "__main__":
+    move_plugins()
+    setup(
+        name="mcli",
+        packages=find_packages(),
+        version=VERSION_NUM,
+        description="mCLI is a CLI application used to analyze malware using Malcore directly from your terminal",
+        author="Thomas Perkins",
+        author_email="contact@malcore.io",
+        install_requires=["requests", "tabulate"],
+        long_description=open("README.md").read(),
+        long_description_content_type='text/markdown',
+        url='https://github.com/Internet-2-0/mCLI',
+        entry_points={
+            'console_scripts': [
+                'mcli=mcli.cli_tool:run'
+            ]
+        }
+    )
+
+    monkey_patch()

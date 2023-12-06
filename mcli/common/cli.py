@@ -79,5 +79,10 @@ class Parser(argparse.ArgumentParser):
             "--delete-file", default=False, action="store_true", dest="deleteAfterAnalysis",
             help="Delete the file after it has been analyzed"
         )
+        parser.add_argument(
+            "--compile-plugins", default=False, action="store_true", dest="compileAllPlugins",
+            help=f"Attempt to compile plugins that are located in the plugin directory "
+                 f"(location: {settings.PLUGIN_PATH})"
+        )
         return parser.parse_args()
 
