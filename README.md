@@ -87,3 +87,38 @@ Clone the dev branch and make your own branch, make a PR explaining what you did
 Make an [issue on our Github](https://link.malcore.io/readme/issue), and we will get to it as quickly as possible
 
 [<br><br><br><br><p align="center" width="100%"><img src=".github/images/malcore_logo.png"/></p>](https://link.malcore.io/readme/redirect)
+
+# Creating plugins
+
+mCLI comes with the ability to create your own plugins. A plugin template has been provided for you in the [templates](./templates/) folder. Designing your own plugin is pretty straight forward and requires you to put the plugin in the `~/.mcli_plugins` folder in your environment. Once the plugin has been added to the plugins folder you can try to compile the plugin. If the plugin is compiled successfully you can now use it from within mCLI using the `--load-plugin` flag or by dropping into the terminal and using `pl[ugin]`
+
+Basic plugin example:
+
+```python
+# you can import anything that is in mCLI
+from mcli.lib.settings import get_conf
+
+# The help menu is available if you want it and is not needed for the plugin to compile
+__help__ = """
+This is a test plugin that will print 'Hello World'
+
+Available Arguments:
+    show_help -> show this help and exit
+"""
+
+
+# the function name is always 'plugin' otherwise it will not work successfully
+def plugin(*args, **kwargs):
+    # keyword arguments are passed as a dict to the function
+    show_help = kwargs.get("show_help", False)
+    
+    # show the help and exit
+    if show_help:
+        print(__help__)
+        return
+    
+    # run the imported function
+    _ = get_conf()
+    # print 'Hello World'
+    print('Hello World')
+```
