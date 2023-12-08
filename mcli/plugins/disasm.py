@@ -12,11 +12,11 @@ __help__ = """
 This plugin is designed to disassemble binary files and display the disassembly or write it to a file.
 
 Available Arguments:
-    filename    -> full path to the file to disassemble *default=None **REQUIRED
-    arch        -> the architecture you're trying to decompile acceptable 16,32,64 *default=64
-    offset      -> the offset to start the decompilation at if using capstone *default=0x0
-    out_file    -> full path to a file to save the disassembly instructions to *default=None
-    show_help   -> show this help menu and exit
+    filename    -> full path to the file to disassemble                             *default=None **REQUIRED
+    arch        -> the architecture you're trying to decompile acceptable 16,32,64  *default=64   **REQUIRED
+    offset      -> the offset to start the decompilation at if using capstone       *default=0x0  
+    out_file    -> full path to a file to save the disassembly instructions to      *default=None
+    show_help   -> show this help menu and exit                                     *default=False
 """
 
 

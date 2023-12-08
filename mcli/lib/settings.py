@@ -615,3 +615,21 @@ def list_plugins():
             name = plugin.split(".")[0]
             available.add(name)
     return list(available)
+
+
+def display_by_size(data):
+    terminal_size = shutil.get_terminal_size((80, 20))
+    length = terminal_size.lines - 2
+    if isinstance(data, str):
+        parts = [item for item in data.split("\n")]
+    else:
+        parts = data
+    try:
+        for i, line in enumerate(parts):
+            if i != 0 and i % length == 0:
+                input("---- Press Enter To Continue ----")
+            print(line)
+    except KeyboardInterrupt:
+        logger.warn("user quit display")
+    except Exception as e:
+        logger.error(f"failed to display due to error: {str(e)}")

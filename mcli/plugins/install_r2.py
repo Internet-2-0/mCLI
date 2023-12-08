@@ -16,7 +16,7 @@ __help__ = """
 This plugin is designed to install radare2 on the users system. It does not require any arguments.
 
 Available Arguments:
-    show_help   -> show this help menu and exit
+    show_help   -> show this help menu and exit **default=False
 """
 
 
