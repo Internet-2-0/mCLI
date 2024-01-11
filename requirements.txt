@@ -1,4 +1,5 @@
 ﻿requests
 msdk
 tabulate
+capstone
 pyreadline3;sys_platform=="win32"

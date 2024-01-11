@@ -5,7 +5,7 @@ import shutil
 import time
 
 from mcli.lib.settings import init, CURRENT_RUN_CONFIG, integrate_external_commands, get_conf, check_api, \
-    view_basic_threat_summary, HOME, version_display, check_for_updates
+    view_basic_threat_summary, HOME, version_display, check_for_updates, list_plugins, compile_plugin, load_plugin
 from mcli.common.banner import banner_choice
 from mcli.common.cli import Parser
 from mcli.lib.terminal_view import McliTerminal
@@ -31,6 +31,20 @@ def main():
             except Exception as e:
                 error(f"caught error while attempting to remove home, remove manually (error: {str(e)})")
         exit(1)
+    if opts.listAllPlugins:
+        plugin_list = list_plugins()
+        for item in plugin_list:
+            print(item)
+        return
+    if opts.compileAllPlugins:
+        compile_plugin()
+        return
+    if opts.loadPluginName is not None:
+        name = opts.loadPluginName[0]
+        args = ()
+        kwargs = json.loads(opts.pluginArgs)
+        loaded = load_plugin(name)
+        return loaded.plugin(*args, **kwargs)
     if not opts.hideBanner:
         banner_choice()
     if opts.quickAnalysis:

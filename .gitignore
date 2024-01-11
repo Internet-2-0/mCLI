@@ -6,3 +6,4 @@ build/*
 dist/*
 mcli.egg*/*
 venv-l/*
+*.pyc

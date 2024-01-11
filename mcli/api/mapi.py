@@ -46,6 +46,28 @@ class ExtendedMalcoreApi(MalcoreApiSdk):
             else:
                 return False
 
+    def executable_file_analysis(self, filename1, **kwargs):
+        """ patches the exec file analysis endpoint """
+        no_poll = kwargs.get("no_poll", False)
+        if no_poll:
+            self.headers['X-No-Poll'] = "true"
+        url = f"{self.base_url}/upload"
+        try:
+            req = requests.post(url, headers=self.headers, files={"filename1": open(filename1, "rb").read()})
+            return req.json()['data']
+        except:
+            return None
+
+    def status_check(self, uuid):
+        """ patches the status check endpoint """
+        url = f"{self.base_url}/status"
+        data = f"uuid={uuid}"
+        try:
+            req = requests.post(url, headers=self.headers, data=data)
+            return req.json()['data']
+        except:
+            return None
+
     def login(self, email, password):
         """
         log the user into Malcore

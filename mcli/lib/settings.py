@@ -35,6 +35,8 @@ class MalcoreCompleter(object):
 
 # the $HOME path
 HOME = f"{os.path.expanduser('~')}/.mcli"
+# path to all the plugins
+PLUGIN_PATH = f"{os.path.expanduser('~')}/.mcli_plugins"
 # where the UUID cache is stored
 CURRENT_UUIDS = f"{HOME}/uuids.json"
 # config file
@@ -578,3 +580,58 @@ def history(command, max_size=400, delete_all=False):
             fh.write(f"{command}{os.linesep}")
     else:
         open(HISTORY_FILE, 'w').close()
+
+
+def compile_plugin():
+    import py_compile
+
+    path = PLUGIN_PATH
+    skip_files = ("__init__.py", "__pycache__")
+    for plugin_file in os.listdir(path):
+        if ".pyc" not in plugin_file and not any(s in plugin_file for s in list(skip_files)):
+            output_name = f"{plugin_file}c"
+            try:
+                py_compile.compile(f"{path}/{plugin_file}", f"{path}/{output_name}")
+                logger.info(f"file: {plugin_file} compiled successfully")
+            except Exception as e:
+                logger.error(f"unable to compile file: {plugin_file} got error: {str(e)}")
+
+
+def load_plugin(name):
+    name = f"{name}.pyc"
+    path = PLUGIN_PATH
+    full_path = f"{path}/{name}"
+    path, fname = os.path.split(full_path)
+    modulename, _ = os.path.splitext(fname)
+    if path not in sys.path:
+        sys.path.insert(0, path)
+    return __import__(modulename)
+
+
+def list_plugins():
+    available = set()
+    skip_files = ("__init__.py", "__pycache__")
+    plugins = [f for f in os.listdir(PLUGIN_PATH) if not any(s in f for s in list(skip_files))]
+    for plugin in plugins:
+        if ".pyc" in plugin:
+            name = plugin.split(".")[0]
+            available.add(name)
+    return list(available)
+
+
+def display_by_size(data):
+    terminal_size = shutil.get_terminal_size((80, 20))
+    length = terminal_size.lines - 2
+    if isinstance(data, str):
+        parts = [item for item in data.split("\n")]
+    else:
+        parts = data
+    try:
+        for i, line in enumerate(parts):
+            if i != 0 and i % length == 0:
+                input("---- Press Enter To Continue ----")
+            print(line)
+    except KeyboardInterrupt:
+        logger.warn("user quit display")
+    except Exception as e:
+        logger.error(f"failed to display due to error: {str(e)}")
