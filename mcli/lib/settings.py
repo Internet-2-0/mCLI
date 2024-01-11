@@ -586,8 +586,9 @@ def compile_plugin():
     import py_compile
 
     path = PLUGIN_PATH
+    skip_files = ("__init__.py", "__pycache__")
     for plugin_file in os.listdir(path):
-        if ".pyc" not in plugin_file:
+        if ".pyc" not in plugin_file and not any(s in plugin_file for s in list(skip_files)):
             output_name = f"{plugin_file}c"
             try:
                 py_compile.compile(f"{path}/{plugin_file}", f"{path}/{output_name}")
@@ -609,9 +610,10 @@ def load_plugin(name):
 
 def list_plugins():
     available = set()
-    plugins = [f for f in os.listdir(PLUGIN_PATH)]
+    skip_files = ("__init__.py", "__pycache__")
+    plugins = [f for f in os.listdir(PLUGIN_PATH) if not any(s in f for s in list(skip_files))]
     for plugin in plugins:
-        if ".pyc" in plugin and "__init" not in plugin:
+        if ".pyc" in plugin:
             name = plugin.split(".")[0]
             available.add(name)
     return list(available)

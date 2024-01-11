@@ -238,6 +238,12 @@ hi[story]                       View mCLI command history"""
                                         loaded = settings.load_plugin(parts[2])
                                         args = ()
                                         loaded.plugin(*args, **kwargs)
+                            elif action == "help":
+                                log.info("USAGE: pl[ugin] run|list|compile [PLUGIN] [ARGS]")
+                            else:
+                                log.warn(
+                                    f"invalid action passed, valid actions: {','.join(acceptable_options)}"
+                                )
                     elif choice in ("pc", "pcap"):
                         self.add_to_history(choice)
                         if filename is None:
